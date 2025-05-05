@@ -1,49 +1,40 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, Response
+import cv2
 
 app = Flask(__name__)
-app.secret_key = "YOUR_SECRET_KEY"  # Replace with a secure, random key in production
 
-# Hardcoded credentials for demonstration purposes
-USER_CREDENTIALS = {
-    "username": "admin@gmail.com",
-    "password": "password123"
-}
+# Inicializar la cámara
+camera = cv2.VideoCapture(0)  # 0 = cámara predeterminada
+
+def gen_frames():
+    while True:
+        success, frame = camera.read()  # Leer frame de la cámara
+        if not success:
+            break
+        else:
+            # 🔥 Aquí es donde pondrás tu IA para predecir perro/gato
+            label = "Gato"  # Solo de ejemplo
+            # Dibujamos la etiqueta en el frame
+            cv2.putText(frame, label, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 
+                        1, (0, 255, 0), 2, cv2.LINE_AA)
+
+            # Codificar la imagen como JPEG
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+
+            # Usamos yield para hacer streaming
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 @app.route('/')
-def home():
-    # Check if user is logged in
-    if session.get("logged_in"):
-        return f"Hello, {session.get('username')}! <br><a href='/logout'>Logout</a>"
-    # Redirect to login if not authenticated
-    return redirect(url_for('login'))
+def index():
+    # Renderizar una simple página que muestre el stream
+    return render_template('index.html')
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        # Get form data
-        username = request.form.get('username')
-        password = request.form.get('password')
-        print("Usuario:", username, "Contraseña:", password)  # Depuración
-        # Check credentials (for demo purposes)
-        if (username == USER_CREDENTIALS['username'] and 
-            password == USER_CREDENTIALS['password']):
-            # Set session variables
-            session["logged_in"] = True
-            session["username"] = username
-            return redirect(url_for('home'))
-        else:
-            # En lugar de devolver texto plano, rendereamos la misma plantilla con un mensaje de error
-            error_message = "Credenciales inválidas"
-            return render_template('login.html', error=error_message)
-    
-    # Render the login form on GET request
-    return render_template('login.html')
+@app.route('/video')
+def video():
+    # Devuelve el streaming de la cámara
+    return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/logout')
-def logout():
-    # Clear the session to log the user out
-    session.clear()
-    return "You have been logged out. <a href='/login'>Login again</a>"
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
