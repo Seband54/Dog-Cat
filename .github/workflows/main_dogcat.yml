@@ -84,3 +84,4 @@ jobs:
         id: deploy-to-webapp
         with:
           app-name: 'DogCat'
+          enable-logging: true 
