@@ -31,6 +31,10 @@ jobs:
           %USERPROFILE%\.cargo\bin\rustup.exe install stable
           %USERPROFILE%\.cargo\bin\rustup.exe default stable
 
+      - name: Create virtual environment
+        shell: cmd
+        run: python -m venv venv
+
       - name: Verify virtual environment activation
         shell: cmd
         run: |
