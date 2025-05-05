@@ -44,7 +44,10 @@ jobs:
       - name: Zip artifact for deployment
         shell: pwsh
         run: |
-          Compress-Archive -Path * -DestinationPath release.zip -Force -Exclude venv/* .git/* tests/*
+          $exclude = @('venv', '.git', 'tests')
+          Get-ChildItem -Path * -Recurse -File | Where-Object { 
+              $exclude -notcontains $_.DirectoryName.Split('\')[-1] 
+          } | Compress-Archive -DestinationPath release.zip -Force
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
