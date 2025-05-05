@@ -56,13 +56,13 @@ jobs:
         run: |
           Compress-Archive -Path * -DestinationPath release.zip -Force -Exclude 'venv', '.git', 'tests'
       
-            - name: Upload artifact for deployment jobs
-              uses: actions/upload-artifact@v4
-              with:
-                name: python-app
-                path: |
-                  release.zip
-                  !venv/
+      - name: Upload artifact for deployment jobs
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-app
+          path: |
+            release.zip
+            !venv/
 
   deploy:
     runs-on: ubuntu-latest
