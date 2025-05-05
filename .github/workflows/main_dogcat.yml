@@ -25,10 +25,11 @@ jobs:
           python-version: '3.11'
 
       - name: Install Rust
+        shell: cmd
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          $HOME/.cargo/bin/rustup.exe install stable
-          $HOME/.cargo/bin/rustup.exe default stable
+          %USERPROFILE%\.cargo\bin\rustup.exe install stable
+          %USERPROFILE%\.cargo\bin\rustup.exe default stable
 
       - name: Create and start virtual environment
         run: |
