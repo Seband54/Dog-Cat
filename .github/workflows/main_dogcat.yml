@@ -54,7 +54,9 @@ jobs:
       - name: Zip artifact for deployment
         shell: pwsh
         run: |
-          Compress-Archive -Path * -DestinationPath release.zip -Force -Exclude 'venv', '.git', 'tests'
+          # Remove the unwanted directories/files before zipping
+          Remove-Item -Recurse -Force venv, .git, tests
+          Compress-Archive -Path * -DestinationPath release.zip -Force
       
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
