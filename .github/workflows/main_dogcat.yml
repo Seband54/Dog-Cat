@@ -59,7 +59,7 @@ jobs:
         shell: pwsh
         run: |
           # Remove the unwanted directories/files before zipping
-          Remove-Item -Recurse -Force venv, .git, tests
+          Remove-Item -Recurse -Force venv, .git, tests -ErrorAction SilentlyContinue
           Compress-Archive -Path * -DestinationPath release.zip -Force
       
       - name: Upload artifact for deployment jobs
