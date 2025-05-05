@@ -27,7 +27,7 @@ jobs:
       - name: Install Rust (for packages that require it)
         run: |
           curl https://sh.rustup.rs -sSf | sh -s -- -y
-          echo "source $HOME/.cargo/env" >> $GITHUB_ENV
+          . "$HOME/.cargo/env"
 
       - name: Create and start virtual environment
         run: |
