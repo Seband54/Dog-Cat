@@ -31,34 +31,38 @@ jobs:
           %USERPROFILE%\.cargo\bin\rustup.exe install stable
           %USERPROFILE%\.cargo\bin\rustup.exe default stable
 
-      - name: Create and start virtual environment
+      - name: Verify virtual environment activation
         shell: cmd
         run: |
-          python -m venv venv
           venv\Scripts\activate.bat
-       
+          python --version
+      
+      - name: Log and verify dependencies
+        shell: cmd
+        run: |
+          type requirements.txt
+          venv\Scripts\activate.bat
+          pip check
+      
       - name: Upgrade pip and install dependencies
         shell: cmd
         run: |
           venv\Scripts\activate.bat
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
+      
       - name: Zip artifact for deployment
         shell: pwsh
         run: |
-          $exclude = @('venv', '.git', 'tests')
-          Get-ChildItem -Path * -Recurse -File | Where-Object { 
-              $exclude -notcontains $_.DirectoryName.Split('\')[-1] 
-          } | Compress-Archive -DestinationPath release.zip -Force
-
-      - name: Upload artifact for deployment jobs
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-app
-          path: |
-            release.zip
-            !venv/
+          Compress-Archive -Path * -DestinationPath release.zip -Force -Exclude 'venv', '.git', 'tests'
+      
+            - name: Upload artifact for deployment jobs
+              uses: actions/upload-artifact@v4
+              with:
+                name: python-app
+                path: |
+                  release.zip
+                  !venv/
 
   deploy:
     runs-on: ubuntu-latest
